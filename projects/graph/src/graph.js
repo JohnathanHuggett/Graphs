@@ -16,6 +16,7 @@ export class Vertex {
         this.edges = [];
         this.value = value;
         this.pos = pos;
+        this.color = "white";
     }
 }
 
@@ -62,7 +63,7 @@ export class Graph {
             let row = [];
             for (let x = 0; x < width; x++) {
                 let v = new Vertex();
-                //v.value = 'v' + x + ',' + y;
+                v.value = "v" + x + "," + y;
                 v.value = "v" + count++;
                 row.push(v);
             }
@@ -130,31 +131,56 @@ export class Graph {
         }
     }
 
+    // generates a random RGB color for each vertex
+    randomColorGen() {
+        const randomNum = () => {
+            return Math.floor(Math.random() * 256);
+        };
+
+        const [red, green, blue] = [randomNum(), randomNum(), randomNum()];
+        return `rgb(${red}, ${green}, ${blue})`;
+    }
+
     /**
      * BFS
      */
+
     bfs(start) {
-        console.log("bfs called");
-        // !!! IMPLEMENT ME
-        // define color for vertexes
-        // take vertex (start) and add to found list
-        // while queue[0] && edge is not in found list
-        // add to found list
-        // boolean to determine if vertex is found?
-        // add to end of queue
-        // add color property to vertex
-        // dequeue queue[0]
-        // if queue is not empty, continue
+        const found = [];
+        const queue = [start];
+        const color = this.randomColorGen();
+
+        start.color = color;
+
+        while (queue.length > 0) {
+            const vertex = queue[0];
+
+            for (let edge of vertex.edges) {
+                if (!found.includes(edge.destination)) {
+                    found.push(edge.destination);
+                    queue.push(edge.destination);
+                    // add color
+                    edge.destination.color = color;
+                }
+            }
+
+            queue.shift(); // de-queue
+            // vertex.color = "black";
+            found.push(vertex);
+        }
+        return found;
     }
 
     /**
      * Get the connected components
      */
     getConnectedComponents() {
-        console.log("getConnectedComponents called");
-        // !!! IMPLEMENT ME
-        // go to next unfound vertex in graph.vertexes
-        // call bfs on it
-        // continue through length of arr
+        let searched = [];
+
+        for (let vertex of this.vertexes) {
+            if (!searched.includes(vertex)) {
+                searched = searched.concat(this.bfs(vertex));
+            }
+        }
     }
 }
